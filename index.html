@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Speed Reading Video Maker (RSVP)</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="brand">
+        <div class="logo">RSVP</div>
+        <div class="brand-text">
+          <h1>Speed Reading Video Maker</h1>
+          <p>Upload/paste text → play one word at a time → export WebM video (up to 900 WPM)</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>1) Input text</h2>
+
+        <div class="row">
+          <label class="file">
+            <input id="fileInput" type="file" accept=".txt,text/plain" />
+            <span>Upload .txt</span>
+          </label>
+
+          <button id="loadSampleBtn" class="btn secondary" type="button">Load sample</button>
+          <button id="clearBtn" class="btn secondary" type="button">Clear</button>
+        </div>
+
+        <textarea
+          id="textInput"
+          placeholder="Paste your book text here (plain text recommended)..."
+          spellcheck="false"
+        ></textarea>
+
+        <div class="stats">
+          <div><span class="k">Words:</span> <span id="wordCount">0</span></div>
+          <div><span class="k">Estimated duration @</span> <span id="estWpm">300</span> WPM: <span id="estDuration">00:00</span></div>
+        </div>
+
+        <div class="row">
+          <button id="prepareBtn" class="btn primary" type="button">Prepare words</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>2) Player</h2>
+
+        <div class="stageWrap">
+          <div class="stage" id="stage" aria-live="polite">
+            <div class="word" id="wordDisplay">—</div>
+            <div class="sub" id="progressText">0 / 0</div>
+          </div>
+
+          <!-- Canvas used for video export (kept hidden visually but still active) -->
+          <canvas id="videoCanvas" width="1280" height="720"></canvas>
+        </div>
+
+        <div class="controls">
+          <div class="row">
+            <button id="backBtn" class="btn secondary" type="button">⟵ Back</button>
+            <button id="playPauseBtn" class="btn primary" type="button">Play</button>
+            <button id="nextBtn" class="btn secondary" type="button">Next ⟶</button>
+          </div>
+
+          <div class="speed">
+            <div class="speedTop">
+              <div class="speedLabel">Speed: <span id="wpmLabel">300</span> WPM</div>
+              <div class="speedBtns">
+                <button id="slowerBtn" class="btn tiny secondary" type="button">−</button>
+                <button id="fasterBtn" class="btn tiny secondary" type="button">+</button>
+              </div>
+            </div>
+
+            <input id="wpmSlider" type="range" min="60" max="900" value="300" step="10" />
+            <div class="hint">Tip: Use spacebar to Play/Pause. Arrow keys go Back/Next.</div>
+          </div>
+
+          <div class="seek">
+            <input id="seekBar" type="range" min="0" max="0" value="0" step="1" />
+            <div class="seekMeta">
+              <span id="timeNow">00:00</span>
+              <span id="timeTotal">00:00</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>3) Export video</h2>
+
+        <div class="exportBox">
+          <p class="note">
+            Export uses your browser’s MediaRecorder and records in real time.
+            Keep the tab active for best results.
+          </p>
+
+          <div class="row">
+            <label class="toggle">
+              <input id="orpToggle" type="checkbox" checked />
+              <span>Highlight ORP (optimal recognition point)</span>
+            </label>
+          </div>
+
+          <div class="row">
+            <label class="select">
+              Resolution
+              <select id="resolutionSelect">
+                <option value="1280x720" selected>1280×720 (HD)</option>
+                <option value="1920x1080">1920×1080 (Full HD)</option>
+                <option value="1080x1080">1080×1080 (Square)</option>
+              </select>
+            </label>
+
+            <label class="select">
+              FPS
+              <select id="fpsSelect">
+                <option value="30" selected>30</option>
+                <option value="60">60</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row">
+            <button id="recordBtn" class="btn primary" type="button">Start recording</button>
+            <button id="stopRecordBtn" class="btn secondary" type="button" disabled>Stop recording</button>
+          </div>
+
+          <div class="row">
+            <div class="status" id="recordStatus">Not recording.</div>
+          </div>
+
+          <div class="row">
+            <a id="downloadLink" class="download" href="#" download="speed-reading.webm" style="display:none;">
+              Download video
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>Made with RSVP timing + Canvas → WebM export</div>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
