@@ -27,14 +27,23 @@ names …`). That is the only cue that a new book has started.
 ## How to use
 
 1. Open the Speed Reading Video Maker (`index.html`).
-2. Under **1) Input text**, click **Upload .txt** and choose one of the files
-   above — then click **Prepare words**.
+2. Under **1) Input text**, click one of the **Load Bible (BBE)** buttons —
+   **Old Testament**, **New Testament**, or **Whole Bible**. The text loads into
+   the box and the words are prepared automatically.
 3. Press **Play** (or the spacebar) to read. Use the seek bar to jump to where
    you left off.
 
+You can also use **Upload .txt** to pick any of these files (including a single
+book from `books/`) by hand, then click **Prepare words**.
+
+**Note:** the one-click buttons read the files over the network, so the page must
+be served over **http(s)** (e.g. GitHub Pages, or `python3 -m http.server`). If
+you open `index.html` straight from disk (a `file://` URL) the buttons can't load
+the files — use **Upload .txt** in that case.
+
 **Tip:** the whole-Bible file is ~4 MB and ~840k words; it works, but it can take
-a moment to "Prepare" and is a long sit. To start smaller, upload
-`bible-bbe-new-testament.txt` or a single book from `books/`.
+a moment to "Prepare" and is a long sit. To start smaller, use **New Testament**
+or a single book from `books/`.
 
 ## Regenerating these files
 

@@ -9,6 +9,11 @@ const els = {
   clearBtn: document.getElementById("clearBtn"),
   prepareBtn: document.getElementById("prepareBtn"),
 
+  loadOTBtn: document.getElementById("loadOTBtn"),
+  loadNTBtn: document.getElementById("loadNTBtn"),
+  loadWholeBibleBtn: document.getElementById("loadWholeBibleBtn"),
+  bibleStatus: document.getElementById("bibleStatus"),
+
   wordDisplay: document.getElementById("wordDisplay"),
   progressText: document.getElementById("progressText"),
 
@@ -66,6 +71,10 @@ function init() {
   els.loadSampleBtn.addEventListener("click", loadSample);
   els.clearBtn.addEventListener("click", clearAll);
   els.prepareBtn.addEventListener("click", prepareWords);
+
+  els.loadOTBtn.addEventListener("click", () => loadBible("ot"));
+  els.loadNTBtn.addEventListener("click", () => loadBible("nt"));
+  els.loadWholeBibleBtn.addEventListener("click", () => loadBible("whole"));
 
   els.playPauseBtn.addEventListener("click", togglePlayPause);
   els.backBtn.addEventListener("click", () => step(-1));
@@ -128,6 +137,57 @@ Press spacebar to play/pause, and export to a video when ready.`;
   updateStats();
 }
 
+// Public-domain Bible (Bible in Basic English) text files shipped in ./bible/.
+const BIBLE_FILES = {
+  ot:    { path: "./bible/bible-bbe-old-testament.txt", label: "Old Testament" },
+  nt:    { path: "./bible/bible-bbe-new-testament.txt", label: "New Testament" },
+  whole: { path: "./bible/bible-bbe.txt",               label: "Whole Bible" },
+};
+
+async function loadBible(key) {
+  const item = BIBLE_FILES[key];
+  if (!item) return;
+
+  setBibleBusy(true);
+  els.bibleStatus.textContent = `Loading ${item.label}…`;
+
+  let text;
+  try {
+    const res = await fetch(item.path, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    text = await res.text();
+  } catch (err) {
+    setBibleBusy(false);
+    els.bibleStatus.textContent = "";
+    alert(
+      `Couldn't load the ${item.label} file (${err.message}).\n\n` +
+      `If you opened index.html directly from your file system (a file:// URL), ` +
+      `browsers block loading local files. Serve this folder over http instead — ` +
+      `for example, run in the project folder:\n\n    python3 -m http.server\n\n` +
+      `then open http://localhost:8000/`
+    );
+    return;
+  }
+
+  // Drop the text into the box, then prepare words so Play works right away.
+  els.textInput.value = text;
+  els.bibleStatus.textContent = `Preparing ${item.label}…`;
+  // Yield once so the status paints before the (synchronous) tokenize of a big text.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  prepareWords(); // also stops any playback/recording and resets to the start
+
+  setBibleBusy(false);
+  els.bibleStatus.textContent =
+    `Loaded ${item.label}: ${words.length.toLocaleString()} words ready. Press Play ▶`;
+}
+
+function setBibleBusy(busy) {
+  [els.loadOTBtn, els.loadNTBtn, els.loadWholeBibleBtn].forEach((b) => {
+    if (b) b.disabled = busy;
+  });
+}
+
 function clearAll() {
   stopPlayback();
   if (recording) stopRecording();
@@ -138,6 +198,7 @@ function clearAll() {
 
   els.downloadLink.style.display = "none";
   els.downloadLink.href = "#";
+  if (els.bibleStatus) els.bibleStatus.textContent = "";
 
   renderCurrentWord();
   updateProgressUI();
